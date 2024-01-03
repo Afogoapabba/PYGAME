@@ -25,6 +25,11 @@ def obstacle_movement(obstacle_list):
     else:
         return []
 
+def collision_check(obstacle_list):
+    for obstacle_rect in obstacle_list:
+        if player_rect.colliderect(obstacle_rect):
+            return False
+    return True
 
 pygame.init()
 screen = pygame.display.set_mode((800, 400))
@@ -46,9 +51,8 @@ fly_surface = pygame.image.load('Intro/graphics/Fly/Fly1.png').convert_alpha()
 obstacle_rect_list = []
 #  Player
 player_surface = pygame.image.load('Intro/graphics/Player/player_walk_1.png').convert_alpha()
-player_rect = player_surface.get_rect(midbottom=(80, 300))
+player_rect = player_surface.get_rect(midbottom=(200, 300))
 player_gravity = 0
-
 # Intro screen
 player_stand = pygame.image.load('Intro/graphics/Player/player_stand.png').convert_alpha()
 player_stand = pygame.transform.scale2x(player_stand)  # Scaled
@@ -101,6 +105,8 @@ while True:
         # if player_rect.colliderect(snail_rect):
         #     game_active = False
         #     snail_rect.left = 800
+        game_active = collision_check(obstacle_rect_list)
+        
 
 # Player
         player_gravity += 0.2
@@ -110,15 +116,13 @@ while True:
         screen.blit(player_surface, player_rect)
 # Obstacle movement
         obstacle_rect_list = obstacle_movement(obstacle_rect_list) 
-        
-# Snail
-#         snail_rect.x -= 6
-#         if snail_rect.right <= 0:
-#             snail_rect.left = 800
-#         screen.blit(snail_surface, snail_rect)
+
 # # Score
         display_score()
     else:
+        obstacle_rect_list.clear()
+        player_rect.midbottom = (200, 300)
+        player_gravity = 0
         score_message = game_font.render(f'Your score:{score} ', True, ('yellow'))
         score_message_rect = score_message.get_rect(center=(400, 50))
         # game over screen
