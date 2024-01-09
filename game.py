@@ -3,77 +3,9 @@ from re import T
 from sys import exit
 from random import randint, choice
 import pygame
+from player import Player
+from obstacle import Obstacle
 
-class Player(pygame.sprite.Sprite):
-    def __init__(self):
-        super().__init__()
-        player_walk_1 = pygame.image.load('Intro/graphics/Player/player_walk_1.png').convert_alpha()
-        player_walk_2 = pygame.image.load('Intro/graphics/Player/player_walk_2.png').convert_alpha()
-        self.player_walk = [player_walk_1, player_walk_2]
-        self.player_index = 0
-        self.player_jump = pygame.image.load('Intro/graphics/Player/jump.png').convert_alpha()
-
-        self.image = self.player_walk[self.player_index]
-        self.rect = self.image.get_rect(midbottom=(100, 300))
-        self.gravity = 0
-        self.jump_sound = pygame.mixer.Sound('Intro/audio/jump.mp3')
-        self.jump_sound.set_volume(0.1)
-    def player_input(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_SPACE] and self.rect.bottom >= 300:
-            self.gravity = -20
-            self.jump_sound.play()
-    def apply_gravity(self):
-        self.gravity += 1
-        self.rect.y += self.gravity
-        if self.rect.bottom >= 300:
-            self.rect.bottom = 300
-
-    def animation(self):
-        if self.rect.bottom < 300:
-            self.image = self.player_jump
-        else:
-            self.player_index += 0.1
-            if self.player_index >= len(self.player_walk):
-                self.player_index = 0
-            self.image = self.player_walk[int(self.player_index)]
-
-    def update(self):
-        self.player_input()
-        self.apply_gravity()
-        self.animation()
-
-class Obstacle(pygame.sprite.Sprite):
-    def __init__(self, type):
-        super().__init__()
-        if type == 'fly':
-            fly_frame_1 = pygame.image.load('Intro/graphics/Fly/Fly1.png').convert_alpha()
-            fly_frame_2 = pygame.image.load('Intro/graphics/Fly/Fly2.png').convert_alpha()
-            self.frames = [fly_frame_1, fly_frame_2]
-            y_pos = 210
-        else:
-            snail_frame_1 = pygame.image.load('Intro/graphics/snail/snail1.png').convert_alpha()
-            snail_frame_2 = pygame.image.load('Intro/graphics/snail/snail2.png').convert_alpha()
-            self.frames = [snail_frame_1, snail_frame_2]
-            y_pos = 300
-        self.animation_index = 0
-        self.image = self.frames[self.animation_index]
-        self.rect = self.image.get_rect(midbottom=(randint(900, 1100), y_pos))
-
-    def animation(self):
-        self.animation_index += 0.1
-        if self.animation_index >= len(self.frames):
-            self.animation_index = 0
-        self.image = self.frames[int(self.animation_index)]
-
-    def update(self):
-        self.animation()
-        self.rect.x -= 6
-        self.destroy()
-
-    def destroy(self):
-        if self.rect.x <= -100:
-            self.kill()
 
 def display_score():
     current_time = int(pygame.time.get_ticks() / 1000) - start_time
@@ -123,7 +55,11 @@ game_active = True
 start_time = 0
 score = 0
 bg_music = pygame.mixer.Sound('Intro/audio/music.wav')
-bg_music.set_volume(0.1)
+channel = pygame.mixer.Channel(0)
+channel.set_volume(0.1)
+channel.play(bg_music, loops=-1)
+
+
 # Groups
 player = pygame.sprite.GroupSingle()
 player.add(Player())
@@ -183,7 +119,6 @@ while True:
 
 
     if game_active:
-        bg_music.play(loops=-1)
         #  Background
         screen.blit(sky_surf, (0, 0))
         screen.blit(ground_surf, (0, 300))
@@ -195,7 +130,7 @@ while True:
         score = display_score()
 # Collision
 
-        game_active = collision_check() ################################################
+        game_active = collision_check() 
 
 
 # # Score
